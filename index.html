@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <title>Credentials Manager</title>
+  </head>
+  <body>
+    <div class="app-container">
+        <div class="app-head">
+            <h3>Credentials Manager</h3>
+            <div class="credential-form">
+                <input id='name' placeholder="Name" type="text">
+                <input id='identifier' placeholder="Identifier" type="text">
+                <input id='password' placeholder="Password" type="password">
+                <button class="store-cred-btn">STORE</button>
+            </div>
+        </div>
+        <div class="app-body">
+            <table class="credentials-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Identifier</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Gmail</td>
+                        <td>gau94rav@gmail.com</td>
+                        <td>indiaisshit</td>
+                    </tr>
+                </tbody>
+            </table>
+            <small class="empty-table-message">No credentials found</small>
+        </div>
+    </div>
+    <script src="./assets/js/index.js"></script>
+  </body>
+</html>

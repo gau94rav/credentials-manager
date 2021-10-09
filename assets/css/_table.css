@@ -1,0 +1,19 @@
+
+.credentials-table {
+    width: 100%;
+}
+
+.credentials-table th {
+    background: #EEEEEE;
+    color: #212121;
+    position: sticky;
+    top: 0;
+    margin: auto;
+}
+
+.credentials-table th,
+.credentials-table td {
+    border: 1px solid #fff;
+    padding: 15px;
+    text-align: left;
+}

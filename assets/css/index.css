@@ -1,0 +1,37 @@
+@import './_form.css';
+@import './_table.css';
+
+body {
+    background: #212121;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #fff;
+    overflow: hidden;
+}
+
+.app-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 98.5vh;
+    width: 100%;
+    overflow: auto;
+}
+
+.app-container .app-head {
+    width: 100%;
+}
+
+.app-container .app-head h3 {
+    text-align: center;
+}
+
+.app-container .app-body {
+    margin-top: 100px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.app-container .app-body .empty-table-message {
+    margin: 5px;
+}
