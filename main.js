@@ -68,6 +68,29 @@ ipcMain.on('delete-credential', (channel, id) => {
   }
 })
 
+ipcMain.on('update-credential', (channel, data) => {
+  const credentials = getCredentialsObject();
+  if (credentials && credentials.length) {
+    for (let cred of credentials) {
+      if (cred.id === data.id) {
+        cred.name = data.name;
+        cred.identifier = data.identifier;
+        cred.password = data.password;
+        cred.updated = data.updated;
+        break;
+      }
+    }
+    try {
+      const path = './credentials.json';
+      fs.writeFileSync(path, JSON.stringify(credentials));
+      return sendResponse(channel, 'update-response', true, 'Entry updated!');
+    } catch (err) {
+      console.log(err);
+      return sendResponse(channel, 'update-response', false, err);
+    }
+  }
+})
+
 function getCredentialsObject(obj = false) {
   try {
     const path = './credentials.json';

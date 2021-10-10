@@ -31,7 +31,13 @@
     background: #2196F3;
 }
 
-@media (max-width: 740px) {
+.credential-form .update-cred-btn,
+.credential-form .cancel-cred-btn {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@media (max-width: 870px) {
     .credential-form {
         flex-direction: column;
         gap: 15px;
