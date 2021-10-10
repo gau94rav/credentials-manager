@@ -35,3 +35,7 @@ body {
 .app-container .app-body .empty-table-message {
     margin: 5px;
 }
+
+button {
+    outline: none !important;
+}

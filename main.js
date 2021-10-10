@@ -53,6 +53,21 @@ ipcMain.on('get-credentials', (channel) => {
   })
 })
 
+ipcMain.on('delete-credential', (channel, id) => {
+  const credentials = getCredentialsObject();
+  if (credentials && credentials.length) {
+    const objWithCurrentId = credentials.filter(o => o.id !== id);
+    try {
+      const path = './credentials.json';
+      fs.writeFileSync(path, JSON.stringify(objWithCurrentId));
+      return sendResponse(channel, 'delete-response', true, 'Entry deleted!');
+    } catch (err) {
+      console.log(err);
+      return sendResponse(channel, 'delete-response', false, err);
+    }
+  }
+})
+
 function getCredentialsObject(obj = false) {
   try {
     const path = './credentials.json';

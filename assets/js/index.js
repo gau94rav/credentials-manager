@@ -6,13 +6,15 @@ const identifierElement = document.getElementById('identifier');
 const passwordElement = document.getElementById('password');
 const tableBody = document.querySelector('.table-body');
 const emptyTableText = document.querySelector('.empty-table-message');
+const editBtns = document.querySelectorAll('.edit-btn');
 var liveValidate = false;
 
 storeBtn.addEventListener('click', storeCred);
-nameElement.addEventListener('input', liveValidateTrigger);
-identifierElement.addEventListener('input', liveValidateTrigger);
-passwordElement.addEventListener('input', liveValidateTrigger);
-ipcRenderer.on('store-response', (event, data) => handleStoreResponse(event, data));
+nameElement.addEventListener('keydown', liveValidateTrigger);
+identifierElement.addEventListener('keydown', liveValidateTrigger);
+passwordElement.addEventListener('keydown', liveValidateTrigger);
+ipcRenderer.on('store-response', (event, data) => handleResponse(event, data));
+ipcRenderer.on('delete-response', (event, data) => handleResponse(event, data));
 ipcRenderer.on('credentials-response', (event, data) => populateCredentials(event, data));
 
 getCredentials();
@@ -29,28 +31,36 @@ function populateCredentials(event, data) {
     }
     emptyTableText.style.display = 'none';
     if (data.credentials) {
+        data.credentials.sort((a, b) => new Date(b.created) - new Date(a.created))
         for (let cred of data.credentials) {
-            if (!Object.keys(cred).length) continue;
             const trTag = getTrTag(cred);
             tableBody.appendChild(trTag);
         }
     }
+    postDataEvents();
 }
 
-function storeCred(event) {
+function storeCred() {
 
-    event.preventDefault();
     const name = nameElement.value;
     const identifier = identifierElement.value;
     const password = passwordElement.value;
+    const created = new Date();
     
     const validated = validateForm(name, identifier, password);
 
     if (!validated) return false;
-    const data = { name, identifier, password: window.btoa(password) };
+    const data = {
+        id: makeid(8),
+        name,
+        identifier,
+        password: window.btoa(password),
+        created,
+    };
     ipcRenderer.send('store-credentials', data);
     clearInputs();
     getCredentials();
+    nameElement.focus();
 }
 
 function validateForm(name, identifier, password) {
@@ -72,7 +82,11 @@ function validateForm(name, identifier, password) {
     return name && identifier && password;
 }
 
-function liveValidateTrigger() {
+function liveValidateTrigger(event) {
+    if (event.key === 'Enter') {
+        console.log('[ressd')
+        storeCred();
+    }
     if (liveValidate) {
         const name = document.getElementById('name').value;
         const identifier = document.getElementById('identifier').value;
@@ -81,7 +95,7 @@ function liveValidateTrigger() {
     }
 }
 
-function handleStoreResponse(event, data) {
+function handleResponse(event, data) {
     const { success, message } = data;
 
     if (!success) {
@@ -107,15 +121,29 @@ function getTrTag(obj) {
     const controlsDiv = document.createElement('div');
     const editButton = document.createElement('button');
     const deleteButton = document.createElement('button');
+    const showPasswordBtn = document.createElement('button');
 
     nameTd.innerText = obj.name;
     idTd.innerText = obj.identifier;
-    pwTd.innerText = obj.password;
+    showPasswordBtn.innerText = 'Show';
+    showPasswordBtn.setAttribute('data-hash', obj.password);
+    showPasswordBtn.setAttribute('data-id', obj.id);
+    showPasswordBtn.classList.add('show-pw-btn');
+    pwTd.appendChild(showPasswordBtn);
+
     editButton.innerText = 'Edit';
     deleteButton.innerText = 'Delete';
+
+    editButton.setAttribute('data-id', obj.id);
+    deleteButton.setAttribute('data-id', obj.id);
+
     controlsDiv.classList.add('table-controls');
-    controlsDiv.appendChild(editButton);
+    editButton.classList.add('edit-btn');
+    deleteButton.classList.add('delete-btn');
+
+    // controlsDiv.appendChild(editButton);
     controlsDiv.appendChild(deleteButton);
+
     actiontTd.appendChild(controlsDiv);
 
     tr.appendChild(nameTd);
@@ -123,4 +151,42 @@ function getTrTag(obj) {
     tr.appendChild(pwTd);
     tr.appendChild(actiontTd);
     return tr;
+}
+
+
+function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+function deleteCredential(event) {
+    if (confirm('Delete credential?')) {
+        const id = event.target.getAttribute('data-id');
+        ipcRenderer.send('delete-credential', id);
+        getCredentials();
+    }
+}
+
+function showPassword(event) {
+    const hash = event.target.getAttribute('data-hash');
+    if (hash) {
+        return alert(window.atob(hash));
+    }
+    alert('Failed to decode');
+}
+
+function postDataEvents() {
+    const delBtns = document.querySelectorAll('.delete-btn');
+    const showPwBtns = document.querySelectorAll('.show-pw-btn');
+    delBtns.forEach(el => {
+        el.addEventListener('click', deleteCredential);
+    })
+    showPwBtns.forEach(el => {
+        el.addEventListener('click', showPassword);
+    })
 }
