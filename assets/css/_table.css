@@ -17,3 +17,23 @@
     padding: 15px;
     text-align: left;
 }
+
+.credentials-table tbody .table-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.credentials-table tbody button {
+    border-radius: 5px;
+    border: 1px solid #fff;
+    background: #212121;
+    color: #fff;
+    width: 70px;
+    height: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.credentials-table tbody button:hover {
+    background: #2196F3;
+}

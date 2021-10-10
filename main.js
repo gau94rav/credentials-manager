@@ -1,9 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, ipcRenderer } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
-require('electron-reload')(__dirname, {
-    electron: require(`${__dirname}/node_modules/electron`)
-});
+// require('electron-reload')(__dirname, {
+//   electron: require(`${__dirname}/node_modules/electron`)
+// });
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
@@ -33,5 +34,57 @@ app.on('window-all-closed', function () {
 })
 
 ipcMain.on('store-credentials', (channel, params) => {
-    
+  try {
+    const path = './credentials.json';
+    const data = getCredentialsObject(params);
+    if (data.message) {
+      return sendResponse(channel, 'store-response', false, data.message);
+    }
+    fs.writeFileSync(path, JSON.stringify(data));
+    return sendResponse(channel, 'store-response', true, 'Entry added!');
+  } catch (err) {
+    return sendResponse(channel, 'store-response', false, err);
+  }
 })
+
+ipcMain.on('get-credentials', (channel) => {
+  channel.sender.send('credentials-response', {
+    credentials: getCredentialsObject(),
+  })
+})
+
+function getCredentialsObject(obj = false) {
+  try {
+    const path = './credentials.json';
+    const file = fs.readFileSync(path, 'utf8');
+    if (file) {
+      const oldData = JSON.parse(file);
+      if (typeof oldData === 'object') {
+
+        // Check if already present in file
+        const alreadyPresent = oldData.filter(o => {
+          return o.name === obj.name &&
+            o.identifier === obj.identifier &&
+            o.password === obj.password
+        });
+        if (alreadyPresent.length) {
+          return { message: 'Already added' }
+        }
+        if (obj) {
+          oldData.push(obj);
+        }
+        return oldData;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  return obj ? [obj] : [];
+}
+
+function sendResponse(channel, type, success, message = '') {
+  channel.sender.send(type, {
+    success,
+    message,
+  })
+}

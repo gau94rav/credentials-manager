@@ -14,6 +14,7 @@
     border-radius: 5px;
     background: #212121;
     color: #fff;
+    outline: none !important;
 }
 
 .credential-form button {
